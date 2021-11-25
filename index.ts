@@ -35,13 +35,12 @@ async function handler(_req: Request): Promise<Response> {
 
   // rewrite urls in response to our host
   const json = await res.json();
-  const replacedText = JSON.stringify(json).replaceAll(upstream, origin);
+  const replacedText = JSON.stringify(json, null, 2).replaceAll(upstream, origin);
   console.log('replaced json from proxy', JSON.parse(replacedText));
 
   return new Response(replacedText, {
-    headers: res.headers,
+    headers: { "content-type": "application/json; charset=utf-8" },
     status: res.status,
-    statusText: res.statusText,
   });
 }
 
