@@ -30,16 +30,21 @@ async function handler(_req: Request): Promise<Response> {
     body,
   });
   // early return if not a-ok
-  console.log('got headers', { headers: res.headers });
   if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
 
   // rewrite urls in response to our host
   const json = await res.json();
   const replacedText = JSON.stringify(json, null, 2).replaceAll(upstream, origin);
-  console.log('replaced json from proxy', JSON.parse(replacedText));
 
+  // pick allowed headers from response
+  const responseHeaders: Record<string, string> = {};
+  for (let [key, value] of res.headers.entries()) {
+    if (!['content-length', 'server', 'date'].includes(key)) {
+      responseHeaders[key] = value;
+    }
+  }
   return new Response(replacedText, {
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: responseHeaders,
     status: res.status,
   });
 }
