@@ -29,6 +29,7 @@ export const mapAsset = (assetList: Asset[]) => {
       mappedAsset.link = `https://www.strim.no/watch/seriesoverview/${asset.seriesId}`;
       mappedAsset.series = {
         title: asset.seriesName,
+        episode: asset.season ? `s${asset.season.toFixed().padStart(2, '0')}:e${asset.episode.toFixed().padStart(2, '0')}` : asset.broadcastedTime.substr(0, 10),
         availableSeasons: asset.availableSeasons,
         images: [300, 600].map(getImageSizeMapper(imagePackUri, 'series-main')),
       }
@@ -50,6 +51,7 @@ interface MappedAsset {
   images?: Array<{width: number, url: string}>;
   series?: {
     title: string;
+    episode: string;
     availableSeasons: number;
     images: Array<{width: number, url: string}>;
   }
@@ -62,15 +64,16 @@ interface ProgramAsset {
   duration: number;
   description: string;
   imdbRating: number;
+  broadcastedTime: string; // "2021-11-25T22:30:00Z"
 }
 interface EpisodeAsset extends ProgramAsset {
   seriesName: string;
-  seasonDescription: string;
-  season: number;
   episode: number;
   availableSeasons: number;
   seriesId: string;
+  season?: number;
   // unused
   episodeCount: number;
   availableEpisodes: number;
+  seasonDescription?: string;
 }
