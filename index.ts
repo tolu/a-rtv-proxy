@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
+const upstreamServerMap = {
+  layout: 'https://contentlayout.rikstv.no/1',
+  search: 'https://contentsearch.rikstv.no/1',
+  client: 'https://api.rikstv.no/client/2'
+} as const;
+const upstreamServerValues = Object.values(upstreamServerMap);
 const pathMapper = new Map<string, string>();
-pathMapper.set('pages', 'https://contentlayout.rikstv.no/1');
-pathMapper.set('menus', 'https://contentlayout.rikstv.no/1');
-pathMapper.set('assets', 'https://contentsearch.rikstv.no/1');
-pathMapper.set('client', 'https://api.rikstv.no/client/2');
+pathMapper.set('pages', upstreamServerMap.layout);
+pathMapper.set('menus', upstreamServerMap.layout);
+pathMapper.set('assets', upstreamServerMap.search);
+pathMapper.set('client', upstreamServerMap.client);
 
 async function handler(_req: Request): Promise<Response> {
   // get upstream url base from first path segment
@@ -34,7 +40,9 @@ async function handler(_req: Request): Promise<Response> {
 
   // rewrite urls in response to our host
   const json = await res.json();
-  const replacedText = JSON.stringify(json, null, 2).replaceAll(upstream, origin);
+  const replacedText = upstreamServerValues.reduce((result, upstreamServer) => {
+    return result.replaceAll(upstreamServer, origin);
+  }, JSON.stringify(json, null, 2));
 
   // pick allowed headers from response
   const responseHeaders: Record<string, string> = {};
