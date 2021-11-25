@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
+import { mapAsset } from './mappers/assets.ts';
 
 const upstreamServerMap = {
   layout: 'https://contentlayout.rikstv.no/1',
@@ -13,6 +14,10 @@ const pathMapper = new Map<string, string>([
   ['client', upstreamServerMap.client],
   ['ontvnow', upstreamServerMap.client],
 ]);
+const responseMappers = new Map<string, (input: any) => any>([
+  ['assets', mapAsset]
+]);
+const defaultMapper = (input: any) => input;
 
 async function handler(_req: Request): Promise<Response> {
   // get upstream url base from first path segment
@@ -40,8 +45,11 @@ async function handler(_req: Request): Promise<Response> {
   // early return if not a-ok
   if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
 
+  // get mapper
+  const mapper = responseMappers.get(firstPathSegment) ?? defaultMapper;
+
   // rewrite urls in response to our host
-  const json = await res.json();
+  const json = mapper(await res.json());
   const replacedText = upstreamServerValues.reduce((result, upstreamServer) => {
     return result.replaceAll(upstreamServer, origin);
   }, JSON.stringify(json, null, 2));
