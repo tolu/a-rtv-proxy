@@ -6,10 +6,11 @@ pathMapper.set('menus', 'https://contentlayout.rikstv.no/1');
 pathMapper.set('assets', 'https://contentsearch.rikstv.no/1');
 pathMapper.set('client', 'https://api.rikstv.no/client/2');
 
-function handler(_req: Request): Response {
-  const { headers, method, url } = _req;
+async function handler(_req: Request): Promise<Response> {
+  const { headers, method, url, body } = _req;
 
   const { pathname, search } = new URL(url);
+  console.log('got request:', { pathname, search });
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
   const upstream = pathMapper.get(firstPathSegment);
 
@@ -20,9 +21,11 @@ function handler(_req: Request): Response {
     });
   }
 
-  return new Response(
-    JSON.stringify({ req: {headers,method,url }, res: { upstream, pathAndQuery: pathname + search } }), {
-    headers: { "content-type": "application/json; charset=utf-8" },
+  const upstreamUrl = `${upstream}${pathname}`;
+  return await fetch(upstreamUrl, {
+    headers: { ...headers, 'x-rikstv-application': 'Strim-Browser/4.0.991' },
+    method,
+    body,
   });
 }
 
