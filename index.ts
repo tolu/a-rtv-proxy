@@ -23,17 +23,20 @@ async function handler(_req: Request): Promise<Response> {
 
   // fetch data from upstream
   const upstreamUrl = `${upstream}${pathname}${search}`;
+  console.log('fetch from upstream', { upstreamUrl });
   const res = await fetch(upstreamUrl, {
     headers: { ...headers, 'x-rikstv-application': 'Strim-Browser/4.0.991' },
     method,
     body,
   });
   // early return if not a-ok
+  console.log('got headers', { headers: res.headers });
   if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
 
   // rewrite urls in response to our host
-  const text = await res.text();
-  const replacedText = text.replaceAll(upstream, origin);
+  const json = await res.json();
+  console.log('got json from proxy', json);
+  const replacedText = JSON.stringify(json).replaceAll(upstream, origin);
 
   return new Response(replacedText, {
     headers: res.headers,
