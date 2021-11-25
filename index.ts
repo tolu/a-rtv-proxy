@@ -6,11 +6,13 @@ const upstreamServerMap = {
   client: 'https://api.rikstv.no/client/2'
 } as const;
 const upstreamServerValues = Object.values(upstreamServerMap);
-const pathMapper = new Map<string, string>();
-pathMapper.set('pages', upstreamServerMap.layout);
-pathMapper.set('menus', upstreamServerMap.layout);
-pathMapper.set('assets', upstreamServerMap.search);
-pathMapper.set('client', upstreamServerMap.client);
+const pathMapper = new Map<string, string>([
+  ['pages', upstreamServerMap.layout],
+  ['menus', upstreamServerMap.layout],
+  ['assets', upstreamServerMap.search],
+  ['client', upstreamServerMap.client],
+  ['ontvnow', upstreamServerMap.client],
+]);
 
 async function handler(_req: Request): Promise<Response> {
   // get upstream url base from first path segment
