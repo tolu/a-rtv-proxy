@@ -7,13 +7,13 @@ pathMapper.set('assets', 'https://contentsearch.rikstv.no/1');
 pathMapper.set('client', 'https://api.rikstv.no/client/2');
 
 async function handler(_req: Request): Promise<Response> {
+  // get upstream url base from first path segment
   const { headers, method, url, body } = _req;
-
-  const { pathname, search } = new URL(url);
-  console.log('got request:', { pathname, search });
+  const { pathname, search, origin } = new URL(url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
   const upstream = pathMapper.get(firstPathSegment);
 
+  // return 404 for unsupported path segments
   if (!upstream) {
     return new Response(JSON.stringify({ message: `found no mapping for path: ${firstPathSegment}` }), {
       headers: { "content-type": "application/json; charset=utf-8" },
@@ -21,13 +21,26 @@ async function handler(_req: Request): Promise<Response> {
     });
   }
 
-  const upstreamUrl = `${upstream}${pathname}`;
-  return await fetch(upstreamUrl, {
+  // fetch data from upstream
+  const upstreamUrl = `${upstream}${pathname}${search}`;
+  const res = await fetch(upstreamUrl, {
     headers: { ...headers, 'x-rikstv-application': 'Strim-Browser/4.0.991' },
     method,
     body,
   });
+  // early return if not a-ok
+  if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
+
+  // rewrite urls in response to our host
+  const text = await res.text();
+  const replacedText = text.replaceAll(upstream, origin);
+
+  return new Response(replacedText, {
+    headers: res.headers,
+    status: res.status,
+    statusText: res.statusText,
+  });
 }
 
-console.log("Listening on http://localhost:8000");
+console.log("Server started");
 await serve(handler);
