@@ -69,7 +69,7 @@ async function handler(_req: Request): Promise<Response> {
     responseHeaders['cache-control'] = proxyConfig.cacheControl;
   }
   // default cache for anonymous calls
-  if (res.headers.has('authorization')) {
+  if (!headers.has('authorization')) {
     responseHeaders['cache-control'] = cacheControl({ maxAgeMinutes: 5 });
   }
 
