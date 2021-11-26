@@ -28,7 +28,7 @@ export const mapAsset = (assetList: Asset[]) => {
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
       type: 'program', // TODO: how to set channel? From url context maybee
       style: 'default', // TODO: find a way to set somehow
-      __links: asset.__links
+      _links: asset._links
     };
 
     // override and add properties for series
@@ -64,7 +64,7 @@ interface MappedAsset {
   providerLogoUrl: string;
   type: 'channel' | 'program' | 'series'; // for choosing appropriate select action
   style: 'default' | 'featured' | 'live'; // so that we can style the card
-  __links: {
+  _links: {
     details: { href: string; }
     series?: { href: string; } // set for series
     channel?: { href: string; } // set for live content
@@ -85,7 +85,7 @@ interface ProgramAsset {
   originChannel: {
     logoUrlSvgSquare: string;
   }
-  __links: {
+  _links: {
     details: { href: string }
     series?: { href: string }
   }
