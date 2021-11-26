@@ -1,13 +1,13 @@
-# rtv-proxy
+# a-rtv-proxy
 
-RTV proxy for prototyping vNext API
+`a-rtv-proxy` is a [deno deploy](https://deno.com/deploy/docs) powered service for prototyping RTV's vNext client API
 
-> slimmed down interface to reduce client side logic and choices
+> Main goal: slimmed down interface to reduce client side logic and choices
 
 - [x] add proxying for layout, search and client API's
 - [x] return 404 for routes that are not mapped
 - [x] add feature for mapping a specific response
-- [x] add private cache headers to simplify client logic
+- [x] add private cache headers to simplify client logic
 - [ ] discuss interface with other client developers
 
 ```ts
