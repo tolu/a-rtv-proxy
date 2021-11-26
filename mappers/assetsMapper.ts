@@ -16,10 +16,9 @@ export const mapAsset = (assetList: Asset[]) => {
   return assetList.map((asset) => {
     const { id, name, imagePackUri, duration, description, imdbRating } = asset;
     const images = [300, 600].map(getImageSizeMapper(imagePackUri));
-    const mappedAsset: MappedAsset = {
+    const mappedAsset: Partial<MappedAsset> = {
       title: name,
       description,
-      duration,
       imdbRating: parseFloat(imdbRating.toFixed(1)),
       link: `https://www.strim.no/watch/vod/${id}`,
     };
@@ -29,7 +28,6 @@ export const mapAsset = (assetList: Asset[]) => {
       mappedAsset.link = `https://www.strim.no/watch/seriesoverview/${asset.seriesId}`;
       mappedAsset.series = {
         title: asset.seriesName,
-        episode: asset.season ? `s${asset.season.toFixed().padStart(2, '0')}:e${asset.episode.toFixed().padStart(2, '0')}` : asset.broadcastedTime.substr(0, 10),
         availableSeasons: asset.availableSeasons,
         images: [300, 600].map(getImageSizeMapper(imagePackUri, 'series-main')),
       }
@@ -44,14 +42,12 @@ function isEpisodeAsset(asset: Asset): asset is EpisodeAsset {
 }
 interface MappedAsset {
   title: string;
-  duration: number;
   description: string;
   imdbRating: number;
   link: string;
-  images?: Array<{width: number, url: string}>;
+  images: Array<{width: number, url: string}>;
   series?: {
     title: string;
-    episode: string;
     availableSeasons: number;
     images: Array<{width: number, url: string}>;
   }

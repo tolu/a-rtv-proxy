@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
-import { mapAsset } from './mappers/assets.ts';
+import { mapAsset } from './mappers/assetsMapper.ts';
+import { cacheControl } from './utils/cacheControl.ts';
 
 const upstreamServerMap = {
   layout: 'https://contentlayout.rikstv.no/1',
@@ -7,27 +8,28 @@ const upstreamServerMap = {
   client: 'https://api.rikstv.no/client/2'
 } as const;
 const upstreamServerValues = Object.values(upstreamServerMap);
-const pathMapper = new Map<string, string>([
-  ['pages', upstreamServerMap.layout],
-  ['menus', upstreamServerMap.layout],
-  ['assets', upstreamServerMap.search],
-  ['client', upstreamServerMap.client],
-  ['ontvnow', upstreamServerMap.client],
+interface UpstreamSettings {
+  server: string;
+  dataMapper?: (input: any) => any;
+  cacheControl?: string;
+}
+const pathConfig = new Map<string, UpstreamSettings>([
+  ['pages', { server: upstreamServerMap.layout }],
+  ['menus', { server: upstreamServerMap.layout }],
+  ['assets', { server: upstreamServerMap.search, dataMapper: mapAsset, cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }) }],
+  ['client', { server: upstreamServerMap.client }],
+  ['ontvnow', { server: upstreamServerMap.client }],
 ]);
-const responseMappers = new Map<string, (input: any) => any>([
-  ['assets', mapAsset]
-]);
-const defaultMapper = (input: any) => input;
 
 async function handler(_req: Request): Promise<Response> {
   // get upstream url base from first path segment
   const { headers, method, url, body } = _req;
   const { pathname, search, origin } = new URL(url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
-  const upstream = pathMapper.get(firstPathSegment);
+  const proxyConfig = pathConfig.get(firstPathSegment);
 
   // return 404 for unsupported path segments
-  if (!upstream) {
+  if (!proxyConfig) {
     return new Response(JSON.stringify({ message: `found no mapping for path: ${firstPathSegment}` }), {
       headers: { "content-type": "application/json; charset=utf-8" },
       status: 404
@@ -35,7 +37,7 @@ async function handler(_req: Request): Promise<Response> {
   }
 
   // fetch data from upstream
-  const upstreamUrl = `${upstream}${pathname}${search}`;
+  const upstreamUrl = `${proxyConfig.server}${pathname}${search}`;
   console.log('fetch from upstream', { upstreamUrl, origin });
   const res = await fetch(upstreamUrl, {
     headers: { ...headers, 'x-rikstv-application': 'Strim-Browser/4.0.991' },
@@ -45,11 +47,12 @@ async function handler(_req: Request): Promise<Response> {
   // early return if not a-ok
   if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
 
-  // get mapper
-  const mapper = responseMappers.get(firstPathSegment) ?? defaultMapper;
-
+  // map data
+  let json = await res.json();
+  if (proxyConfig.dataMapper) {
+    json = proxyConfig.dataMapper(json);
+  }
   // rewrite urls in response to our host
-  const json = mapper(await res.json());
   const replacedText = upstreamServerValues.reduce((result, upstreamServer) => {
     return result.replaceAll(upstreamServer, origin);
   }, JSON.stringify(json, null, 2));
@@ -61,6 +64,15 @@ async function handler(_req: Request): Promise<Response> {
       responseHeaders[key] = value;
     }
   }
+  // add specific private cache per endpoint
+  if (proxyConfig.cacheControl) {
+    responseHeaders['cache-control'] = proxyConfig.cacheControl;
+  }
+  // default cache for anonymous calls
+  if (res.headers.has('authorization')) {
+    responseHeaders['cache-control'] = cacheControl({ maxAgeMinutes: 5 });
+  }
+
   return new Response(replacedText, {
     headers: responseHeaders,
     status: res.status,
