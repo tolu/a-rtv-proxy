@@ -28,7 +28,10 @@ export const mapAsset = (assetList: Asset[]) => {
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
       type: 'program', // TODO: how to set channel? From url context maybee
       style: 'default', // TODO: find a way to set somehow
-      _links: asset._links
+      _links: {
+        details: asset._links.details,
+        series: asset._links.series
+      }
     };
 
     // override and add properties for series
