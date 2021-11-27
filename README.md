@@ -12,16 +12,23 @@
 
 ```ts
 // current interface mapping for swimlane content (not menu items)
-interface SwimlaneItem {
+interface MappedAsset {
+  id: string; // assetId | seriesId | channelId based on "type"
   title: string;
+  image: Image[]; // image array with preselected sizes and image location (series, season, main)
+  subtitle: string; // "Type · År · Sjanger"
   description: string;
-  imdbRating: number;
-  link: string;
-  images: Array<{width: number, url: string}>;
-  series?: {
-    title: string;
-    availableSeasons: number;
-    images: Array<{width: number, url: string}>;
+  imdbRating: number; // 6.8
+  inSubscription: boolean; // does the user have access to this content
+  providerLogoUrl: string;
+  type: 'program' | 'series' | 'event' | 'channel'; // for choosing appropriate select action
+  style: 'default' | 'featured' | 'live'; // so that we can style the card
+  _links: {
+    details: { href: string; }
+    series?: { href: string; } // set for series
+    channel?: { href: string; } // set for event/live types
   }
+  durationInSeconds?: number; // Set for event/live types
+  broadcastStartEpoch?: number; // Set for event/live types
 }
 ```
