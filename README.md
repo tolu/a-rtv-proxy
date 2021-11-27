@@ -28,7 +28,8 @@ interface MappedAsset {
     series?: { href: string; } // set for series
     channel?: { href: string; } // set for event/live types
   }
+  label?: string;  // Set for event types
+  startTimeEpoch?: number; // Set for event/live types
   durationInSeconds?: number; // Set for event/live types
-  broadcastStartEpoch?: number; // Set for event/live types
 }
 ```
