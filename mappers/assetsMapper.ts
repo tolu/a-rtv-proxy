@@ -1,5 +1,5 @@
 import { IMAGE_VARIANTS } from '../utils/config.ts'
-import { inRange, offsetInHoursFromNow } from '../utils/date.ts'
+import { getTimeType, inRange, offsetInHoursFromNow } from '../utils/date.ts'
 import type { ApiAsset, ApiEpisodeAsset, ApiProgramAsset } from '../types/api.ts';
 
 const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
@@ -47,8 +47,9 @@ export const mapAsset = (assetList: ApiAsset[]) => {
 
     if(isLiveEvent(asset)) {
       mappedAsset.type = 'event';
+      mappedAsset.label = getTimeType(new Date(asset.broadcastedTime), asset.duration);
       mappedAsset.durationInSeconds = asset.duration;
-      mappedAsset.broadcastStartEpoch = new Date(asset.broadcastedTime).getTime();
+      mappedAsset.startTimeEpoch = new Date(asset.broadcastedTime).getTime();
       // set url to channel details instead of epg
       mappedAsset._links.channel = { href: asset.originChannel._links.epg.href.replace(/epg$/, 'details') };
     }
@@ -91,13 +92,15 @@ interface MappedAssetBase {
     series?: { href: string; } // set for series types
     channel?: { href: string; } // set for event/channel types
   }
+  label?: string;
+  startTimeEpoch?: number;
   durationInSeconds?: number;
-  broadcastStartEpoch?: number;
 }
 interface MappedEventAsset extends MappedAssetBase {
   type: 'event';
+  label: string;
+  startTimeEpoch: number;
   durationInSeconds: number;
-  broadcastStartEpoch: number;
   _links: {
     details: { href: string; }
     channel: { href: string; }
