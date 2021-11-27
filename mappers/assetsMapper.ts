@@ -1,4 +1,6 @@
 import { IMAGE_VARIANTS } from '../utils/config.ts'
+import { inRange, offsetInHoursFromNow } from '../utils/date.ts'
+import type { ApiAsset, ApiEpisodeAsset, ApiProgramAsset } from '../types/api.ts';
 
 const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
   const url = new URL(image);
@@ -13,7 +15,8 @@ const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
   }
 }
 
-export const mapAsset = (assetList: Asset[]) => {
+export const mapAsset = (assetList: ApiAsset[]) => {
+
   return assetList.map((asset) => {
     const { id, name, imagePackUri, description, imdbRating, subscription: inSubscription } = asset;
     const mappedAsset: MappedAsset = {
@@ -25,7 +28,7 @@ export const mapAsset = (assetList: Asset[]) => {
       image: IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri)),
       inSubscription,
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
-      type: 'program', // TODO: how to set channel? From url context maybee
+      type: 'program', // TODO: how to set channel? check all assets are live now in list?
       style: 'default', // TODO: find a way to set somehow
       _links: {
         details: asset._links.details,
@@ -42,12 +45,26 @@ export const mapAsset = (assetList: Asset[]) => {
       mappedAsset.type = 'series';
     }
 
+    if(isLiveEvent(asset)) {
+      mappedAsset.type = 'event';
+      mappedAsset.durationInSeconds = asset.duration;
+      mappedAsset.broadcastStartEpoch = new Date(asset.broadcastedTime).getTime();
+      // set url to channel details instead of epg
+      mappedAsset._links.channel = { href: asset.originChannel._links.epg.href.replace(/epg$/, 'details') };
+    }
+
     return {...mappedAsset, __originalAsset: asset};
   });
 }
 
-function isEpisodeAsset(asset: Asset): asset is EpisodeAsset {
+function isEpisodeAsset(asset: ApiAsset): asset is ApiEpisodeAsset {
   return (asset as any).seriesId != null;
+}
+
+function isLiveEvent(asset: ApiAsset): boolean {
+  const broadCastDate = new Date(asset.broadcastedTime);
+  const offsetHours = offsetInHoursFromNow(broadCastDate);
+  return inRange(offsetHours, 0, 24) || inRange(offsetHours, -12, 0);
 }
 
 interface Image {
@@ -55,7 +72,10 @@ interface Image {
   url: string;
   // type: 'wide'|'poster';
 }
-interface MappedAsset {
+type MappedAsset = 
+  | MappedAssetBase
+  | MappedEventAsset;
+interface MappedAssetBase {
   id: string; // assetId | seriesId | channelId based on "type"
   title: string;
   image: Image[]; // image array with preselected sizes and image location (series, season, main)
@@ -64,42 +84,23 @@ interface MappedAsset {
   imdbRating: number; // 6.8
   inSubscription: boolean; // does the user have access to this content
   providerLogoUrl: string;
-  type: 'channel' | 'program' | 'series'; // for choosing appropriate select action
+  type: 'program' | 'series' | 'channel' | 'event'; // for choosing appropriate select action
   style: 'default' | 'featured' | 'live'; // so that we can style the card
   _links: {
     details: { href: string; }
-    series?: { href: string; } // set for series
-    channel?: { href: string; } // set for live content
+    series?: { href: string; } // set for series types
+    channel?: { href: string; } // set for event/channel types
   }
+  durationInSeconds?: number;
+  broadcastStartEpoch?: number;
 }
-type Asset = ProgramAsset | EpisodeAsset; 
-interface ProgramAsset {
-  id: string;
-  name: string;
-  imagePackUri: string;
-  duration: number;
-  description: string;
-  imdbRating: number;
-  broadcastedTime: string; // "2021-11-25T22:30:00Z"
-  productionYear: number;
-  genres: string[];
-  subscription: boolean;
-  originChannel: {
-    logoUrlSvgSquare: string;
-  }
+interface MappedEventAsset extends MappedAssetBase {
+  type: 'event';
+  durationInSeconds: number;
+  broadcastStartEpoch: number;
   _links: {
-    details: { href: string }
-    series?: { href: string }
+    details: { href: string; }
+    channel: { href: string; }
+    series?: { href: string; }
   }
-}
-interface EpisodeAsset extends ProgramAsset {
-  seriesName: string;
-  episode: number;
-  availableSeasons: number;
-  seriesId: string;
-  season?: number;
-  // unused
-  episodeCount: number;
-  availableEpisodes: number;
-  seasonDescription?: string;
 }
