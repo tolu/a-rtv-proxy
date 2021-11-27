@@ -1,3 +1,4 @@
+import { IMAGE_VARIANTS } from '../utils/config.ts'
 
 const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
   const url = new URL(image);
@@ -12,18 +13,16 @@ const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
   }
 }
 
-
-
 export const mapAsset = (assetList: Asset[]) => {
   return assetList.map((asset) => {
-    const { id, name, imagePackUri, duration, description, imdbRating, subscription: inSubscription } = asset;
+    const { id, name, imagePackUri, description, imdbRating, subscription: inSubscription } = asset;
     const mappedAsset: MappedAsset = {
       id,
       title: name,
       subtitle: [asset.productionYear, asset.genres[0]].filter(Boolean).join(' · '),
       description,
       imdbRating: parseFloat(imdbRating.toFixed(1)),
-      image: [300, 600].map(getImageSizeMapper(imagePackUri)),
+      image: IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri)),
       inSubscription,
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
       type: 'program', // TODO: how to set channel? From url context maybee
@@ -38,7 +37,7 @@ export const mapAsset = (assetList: Asset[]) => {
     if (isEpisodeAsset(asset)) {
       mappedAsset.id = asset.seriesId;
       mappedAsset.title = asset.seriesName;
-      mappedAsset.image = [300, 600].map(getImageSizeMapper(imagePackUri, 'series-main'));
+      mappedAsset.image = IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri, 'series-main'));
       mappedAsset.subtitle += ` · ${asset.availableSeasons} sesong${asset.availableSeasons > 1 ? 'er' : ''}`
       mappedAsset.type = 'series';
     }
