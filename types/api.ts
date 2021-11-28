@@ -2,7 +2,7 @@ export type ApiAsset = ApiProgramAsset | ApiEpisodeAsset; 
 export interface ApiProgramAsset {
   id: string;
   name: string;
-  imagePackUri: string;
+  imagePackUri?: string; // null for ontvnow when no broadcast for channel
   duration: number;
   description: string;
   imdbRating?: number;
@@ -15,12 +15,13 @@ export interface ApiProgramAsset {
     channelId: number;
     logoUrlSvgSquare: string;
     _links: {
-      epg: { href: string }
+      epg: Link;
+      placeholderImage: Link;
     }
   }
   _links: {
-    details: { href: string }
-    series?: { href: string }
+    details: Link;
+    series?: Link;
   }
 }
 export interface ApiEpisodeAsset extends ApiProgramAsset {
@@ -33,4 +34,7 @@ export interface ApiEpisodeAsset extends ApiProgramAsset {
   episodeCount: number;
   availableEpisodes: number;
   seasonDescription?: string;
+}
+interface Link {
+  href: string;
 }

@@ -1,31 +1,18 @@
-import { IMAGE_VARIANTS } from '../utils/config.ts'
 import { getTimeType, inRange, offsetInHoursFromNow } from '../utils/date.ts'
-import type { ApiAsset, ApiEpisodeAsset, ApiProgramAsset } from '../types/api.ts';
-
-const getImageSizeMapper = (image: string, location: ''|'series-main' = '') => {
-  const url = new URL(image);
-  return (width: number) => {
-    url.searchParams.set('width', width.toString());
-    url.searchParams.delete('location');
-    location && url.searchParams.set('location', location);
-    return {
-      width,
-      url: url.toString(),
-    }
-  }
-}
+import type { ApiAsset, ApiEpisodeAsset } from '../types/api.ts';
+import { Image, mapImage } from './assetImageMapper.ts';
 
 export const mapAsset = (assetList: ApiAsset[]) => {
 
   return assetList.map((asset) => {
-    const { id, name, imagePackUri, description, imdbRating, subscription: inSubscription } = asset;
+    const { id, name, description, imdbRating, subscription: inSubscription } = asset;
     const mappedAsset: MappedAsset = {
       id,
       title: name,
       subtitle: [asset.productionYear, asset.genres?.[0]].filter(Boolean).join(' · '),
       description,
       imdbRating: imdbRating ? parseFloat(imdbRating.toFixed(1)) : null,
-      image: IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri)),
+      image: mapImage(asset, isEpisodeAsset(asset)),
       inSubscription,
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
       type: 'program', // TODO: how to set channel? check all assets are live now in list?
@@ -40,7 +27,6 @@ export const mapAsset = (assetList: ApiAsset[]) => {
     if (isEpisodeAsset(asset)) {
       mappedAsset.id = asset.seriesId;
       mappedAsset.title = asset.seriesName;
-      mappedAsset.image = IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri, 'series-main'));
       mappedAsset.subtitle += ` · ${asset.availableSeasons} sesong${asset.availableSeasons > 1 ? 'er' : ''}`
       mappedAsset.type = 'series';
     }
@@ -68,11 +54,6 @@ function isLiveEvent(asset: ApiAsset): boolean {
   return inRange(offsetHours, 0, 24) || inRange(offsetHours, -12, 0);
 }
 
-interface Image {
-  width: number;
-  url: string;
-  // type: 'wide'|'poster';
-}
 type MappedAsset = 
   | MappedAssetBase
   | MappedEventAsset;
