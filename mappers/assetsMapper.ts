@@ -1,5 +1,5 @@
 import { getTimeType, inRange, offsetInHoursFromNow } from '../utils/date.ts'
-import type { ApiAsset, ApiEpisodeAsset } from '../types/api.ts';
+import type { ApiAsset, ApiEpisodeAsset } from '../types/ApiAsset.ts';
 import { Image, mapImage } from './assetImageMapper.ts';
 
 export const mapAsset = (assetList: ApiAsset[]) => {

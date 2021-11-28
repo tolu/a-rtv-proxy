@@ -1,4 +1,4 @@
-import type { ApiAsset } from '../types/api.ts';
+import type { ApiAsset } from '../types/ApiAsset.ts';
 import { IMAGE_VARIANTS } from '../utils/config.ts'
 
 export interface Image {
