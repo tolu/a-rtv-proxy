@@ -1,11 +1,7 @@
-import type { ApiAsset } from '../types/api.ts';
-import { IMAGE_VARIANTS } from '../utils/config.ts'
+import type { ApiAsset } from '../types/ApiAsset.ts';
+import { IMAGE_VARIANTS } from '../utils/config.ts';
+import type { Image } from '../types/MappedAsset.ts';
 
-export interface Image {
-  width: number;
-  url: string;
-  // type: 'wide'|'poster';
-}
 
 /**
  * Maps asset's `imagePackUri` to array of images with predefined widths,
