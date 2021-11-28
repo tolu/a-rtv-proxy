@@ -1,27 +1,6 @@
 import { mapAsset } from '../mappers/assetsMapper.ts';
 import { cacheControl } from '../utils/cacheControl.ts';
 
-const upstreamServerMap = {
-  layout: 'https://contentlayout.rikstv.no/1',
-  search: 'https://contentsearch.rikstv.no/1',
-  client: 'https://api.rikstv.no/client/2'
-} as const;
-const upstreamServerValues = Object.values(upstreamServerMap);
-
-interface UpstreamSettings {
-  server: string;
-  dataMapper?: (input: any) => any;
-  cacheControl?: string;
-}
-
-const pathConfig = new Map<string, UpstreamSettings>([
-  ['pages', { server: upstreamServerMap.layout }],
-  ['menus', { server: upstreamServerMap.layout }],
-  ['assets', { server: upstreamServerMap.search, dataMapper: mapAsset, cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }) }],
-  ['client', { server: upstreamServerMap.client }],
-  ['ontvnow', { server: upstreamServerMap.client, dataMapper: mapAsset }],
-]);
-
 export const useMappingMiddlewareHandler = (_req: Request) => {
   const { pathname } = new URL(_req.url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
@@ -76,3 +55,24 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
     status: res.status,
   });
 }
+
+const upstreamServerMap = {
+  layout: 'https://contentlayout.rikstv.no/1',
+  search: 'https://contentsearch.rikstv.no/1',
+  client: 'https://api.rikstv.no/client/2'
+} as const;
+const upstreamServerValues = Object.values(upstreamServerMap);
+
+interface UpstreamSettings {
+  server: string;
+  dataMapper?: (input: any) => any;
+  cacheControl?: string;
+}
+
+const pathConfig = new Map<string, UpstreamSettings>([
+  ['pages', { server: upstreamServerMap.layout }],
+  ['menus', { server: upstreamServerMap.layout }],
+  ['assets', { server: upstreamServerMap.search, dataMapper: mapAsset, cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }) }],
+  ['client', { server: upstreamServerMap.client }],
+  ['ontvnow', { server: upstreamServerMap.client, dataMapper: mapAsset }],
+]);
