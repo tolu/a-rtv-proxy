@@ -7,11 +7,11 @@ async function handler(_req: Request): Promise<Response> {
   }
 
   // return 404 for unsupported path segments
-  return new Response(JSON.stringify({ message: `found no mapping for path: ${firstPathSegment}` }), {
+  return new Response(JSON.stringify({ message: `found no handler for path: ${_req.url}` }), {
     headers: { "content-type": "application/json; charset=utf-8" },
     status: 404
   });
 }
 
-console.log("Server started");
+console.log("Server started on http://localhost:8000/");
 await serve(handler);

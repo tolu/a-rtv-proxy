@@ -10,6 +10,24 @@
 - [x] add private cache headers to simplify client logic
 - [ ] discuss interface with other client developers
 
+## How-to `deno`
+
+> See [deno installation docs](https://deno.land/manual/getting_started/installation) first
+
+Start local server
+
+```sh
+deno run -A index.ts
+```
+
+Run integration tests
+
+```sh
+deno test -A
+```
+
+## Interface
+
 ```ts
 // current interface mapping for swimlane content (not menu items)
 interface MappedAsset {
