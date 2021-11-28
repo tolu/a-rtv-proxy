@@ -22,9 +22,9 @@ export const mapAsset = (assetList: ApiAsset[]) => {
     const mappedAsset: MappedAsset = {
       id,
       title: name,
-      subtitle: [asset.productionYear, asset.genres[0]].filter(Boolean).join(' · '),
+      subtitle: [asset.productionYear, asset.genres?.[0]].filter(Boolean).join(' · '),
       description,
-      imdbRating: parseFloat(imdbRating.toFixed(1)),
+      imdbRating: imdbRating ? parseFloat(imdbRating.toFixed(1)) : null,
       image: IMAGE_VARIANTS.map(getImageSizeMapper(imagePackUri)),
       inSubscription,
       providerLogoUrl: asset.originChannel.logoUrlSvgSquare,
@@ -82,7 +82,7 @@ interface MappedAssetBase {
   image: Image[]; // image array with preselected sizes and image location (series, season, main)
   subtitle: string; // "Type · År · Sjanger"
   description: string;
-  imdbRating: number; // 6.8
+  imdbRating: number | null; // 6.8
   inSubscription: boolean; // does the user have access to this content
   providerLogoUrl: string;
   type: 'program' | 'series' | 'channel' | 'event'; // for choosing appropriate select action

@@ -5,7 +5,7 @@ export interface ApiProgramAsset {
   imagePackUri: string;
   duration: number;
   description: string;
-  imdbRating: number;
+  imdbRating?: number;
   broadcastedTime: string; // "2021-11-25T22:30:00Z"
   productionYear: number;
   genres: string[];
