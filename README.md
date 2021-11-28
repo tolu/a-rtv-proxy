@@ -18,6 +18,8 @@ Start local server
 
 ```sh
 deno run -A index.ts
+# or
+deno run -A --watch index.ts
 ```
 
 Run integration tests
