@@ -18,7 +18,7 @@ const pathConfig = new Map<string, UpstreamSettings>([
   ['menus', { server: upstreamServerMap.layout }],
   ['assets', { server: upstreamServerMap.search, dataMapper: mapAsset, cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }) }],
   ['client', { server: upstreamServerMap.client }],
-  ['ontvnow', { server: upstreamServerMap.client }],
+  ['ontvnow', { server: upstreamServerMap.client, dataMapper: mapAsset }],
 ]);
 
 async function handler(_req: Request): Promise<Response> {
