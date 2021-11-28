@@ -1,8 +1,8 @@
 import { mapAsset } from '../mappers/assetsMapper.ts';
 import { cacheControl } from '../utils/cacheControl.ts';
 
-export const useMappingMiddlewareHandler = (_req: Request) => {
-  const { pathname } = new URL(_req.url);
+export const useMappingMiddlewareHandler = (url: string) => {
+  const { pathname } = new URL(url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
   return pathConfig.has(firstPathSegment);
 }

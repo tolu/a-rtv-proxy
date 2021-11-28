@@ -3,11 +3,11 @@ import { useMappingMiddlewareHandler, mappingMiddlewareHandler } from './middlew
 import { useHtmlMiddlewareHandler, htmlMiddlewareHandler } from './middleware/htmlMiddleware.tsx';
 
 async function handler(_req: Request): Promise<Response> {
-  if (useMappingMiddlewareHandler(_req)) {
+  if (useMappingMiddlewareHandler(_req.url)) {
     return await mappingMiddlewareHandler(_req);
   }
 
-  if (useHtmlMiddlewareHandler(_req)) {
+  if (useHtmlMiddlewareHandler(_req.url)) {
     return await htmlMiddlewareHandler(_req);
   }
 

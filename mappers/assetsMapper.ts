@@ -1,6 +1,8 @@
 import { getTimeType, inRange, offsetInHoursFromNow } from '../utils/date.ts'
 import type { ApiAsset, ApiEpisodeAsset } from '../types/ApiAsset.ts';
-import { Image, mapImage } from './assetImageMapper.ts';
+import type { MappedAsset } from '../types/MappedAsset.ts';
+import { mapImage } from './assetImageMapper.ts';
+
 
 export const mapAsset = (assetList: ApiAsset[]) => {
 
@@ -52,39 +54,4 @@ function isLiveEvent(asset: ApiAsset): boolean {
   const broadCastDate = new Date(asset.broadcastedTime);
   const offsetHours = offsetInHoursFromNow(broadCastDate);
   return inRange(offsetHours, 0, 24) || inRange(offsetHours, -12, 0);
-}
-
-type MappedAsset = 
-  | MappedAssetBase
-  | MappedEventAsset;
-interface MappedAssetBase {
-  id: string; // assetId | seriesId | channelId based on "type"
-  title: string;
-  image: Image[]; // image array with preselected sizes and image location (series, season, main)
-  subtitle: string; // "Type · År · Sjanger"
-  description: string;
-  imdbRating: number | null; // 6.8
-  inSubscription: boolean; // does the user have access to this content
-  providerLogoUrl: string;
-  type: 'program' | 'series' | 'channel' | 'event'; // for choosing appropriate select action
-  style: 'default' | 'featured' | 'live'; // so that we can style the card
-  _links: {
-    details: { href: string; }
-    series?: { href: string; } // set for series types
-    channel?: { href: string; } // set for event/channel types
-  }
-  label?: string;
-  startTimeEpoch?: number;
-  durationInSeconds?: number;
-}
-interface MappedEventAsset extends MappedAssetBase {
-  type: 'event';
-  label: string;
-  startTimeEpoch: number;
-  durationInSeconds: number;
-  _links: {
-    details: { href: string; }
-    channel: { href: string; }
-    series?: { href: string; }
-  }
 }
