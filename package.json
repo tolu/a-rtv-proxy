@@ -1,0 +1,8 @@
+{
+  "name": "a-rtv-proxy",
+  "scripts": {
+    "start": "deno run --watch -A --config deno.jsonc index.ts",
+    "test": "deno test -A",
+    "format": "deno fmt --config deno.jsonc"
+  }
+}

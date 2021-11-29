@@ -1,4 +1,3 @@
-
 export type PageList = PageMeta[];
 
 interface PageMeta {
@@ -9,22 +8,22 @@ interface PageMeta {
 }
 
 export interface Page {
-  id:             string;
-  slug:           string;
-  title:          string;
+  id: string;
+  slug: string;
+  title: string;
   lastUpdatedUTC: Date;
-  swimlanes:      SwimlaneMeta[];
+  swimlanes: SwimlaneMeta[];
   inSubscription: boolean;
 }
 
 export interface SwimlaneMeta {
-  id:             string;
-  name:           string;
-  type:           SwimlaneType;
-  style:          string;
-  link:           string;
+  id: string;
+  name: string;
+  type: SwimlaneType;
+  style: string;
+  link: string;
   supportsPaging: boolean;
   lastUpdatedUTC: Date;
 }
 
-export type SwimlaneType = "Default" | "Menu" | "OnTvNow";
+export type SwimlaneType = 'Default' | 'Menu' | 'OnTvNow';

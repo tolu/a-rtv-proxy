@@ -1,8 +1,7 @@
-
 export const offsetInHoursFromNow = (date: Date) => {
   const offsetHours = (date.getTime() - Date.now()) / 3_600_000;
   return offsetHours;
-}
+};
 
 export const getTimeType = (broadcastDate: Date, durationInSeconds: number) => {
   const epochStart = broadcastDate.getTime();
@@ -11,6 +10,7 @@ export const getTimeType = (broadcastDate: Date, durationInSeconds: number) => {
   if (now > epochEnd) return 'past';
   if (epochStart > now) return 'future';
   return 'present';
-}
+};
 
-export const inRange = (value: number, min: number, max: number) => value >= min && value <= max;
+export const inRange = (value: number, min: number, max: number) =>
+  value >= min && value <= max;

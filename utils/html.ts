@@ -1,5 +1,5 @@
 export const appShell = (bodyHtml: string) => {
-  return /*html*/`
+  return /*html*/ `
   <html>
     <head>
       <style>
@@ -47,4 +47,4 @@ export const appShell = (bodyHtml: string) => {
     </body>
   </html>
   `;
-}
+};

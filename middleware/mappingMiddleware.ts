@@ -1,11 +1,11 @@
-import { mapAsset } from '../mappers/assetsMapper.ts';
-import { cacheControl } from '../utils/cacheControl.ts';
+import { mapAsset } from '../mappers/assetsMapper.ts';
+import { cacheControl } from '../utils/cacheControl.ts';
 
 export const useMappingMiddlewareHandler = (url: string) => {
   const { pathname } = new URL(url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
   return pathConfig.has(firstPathSegment);
-}
+};
 
 export const mappingMiddlewareHandler = async (_req: Request) => {
   // get upstream url base from first path segment
@@ -17,12 +17,20 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
   const upstreamUrl = `${proxyConfig.server}${pathname}${search}`;
   console.log('fetch from upstream', { upstreamUrl, origin });
   const res = await fetch(upstreamUrl, {
-    headers: { ...headers, 'x-rikstv-application': 'Strim-Browser/4.0.991' },
+    headers: {
+      ...headers,
+      'x-rikstv-application': 'Strim-Browser/4.0.991',
+    },
     method,
     body,
   });
   // early return if not a-ok
-  if (!res.ok || !(res.headers.get('content-type') ?? '').includes('application/json')) return res;
+  if (
+    !res.ok ||
+    !(res.headers.get('content-type') ?? '').includes('application/json')
+  ) {
+    return res;
+  }
 
   // map data
   let json = await res.json();
@@ -30,17 +38,21 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
     json = proxyConfig.dataMapper(json);
   }
   // rewrite urls in response to our host
-  const replacedText = upstreamServerValues.reduce((result, upstreamServer) => {
-    return result.replaceAll(upstreamServer, origin);
-  }, JSON.stringify(json, null, 2));
+  const replacedText = upstreamServerValues.reduce(
+    (result, upstreamServer) => {
+      return result.replaceAll(upstreamServer, origin);
+    },
+    JSON.stringify(json, null, 2),
+  );
 
   // pick allowed headers from response
   const responseHeaders: Record<string, string> = {};
-  for (let [key, value] of res.headers.entries()) {
+  res.headers.forEach((value, key) => {
     if (!['content-length', 'server', 'date'].includes(key)) {
       responseHeaders[key] = value;
     }
-  }
+  });
+
   // add specific private cache per endpoint
   if (proxyConfig.cacheControl) {
     responseHeaders['cache-control'] = proxyConfig.cacheControl;
@@ -54,12 +66,12 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
     headers: responseHeaders,
     status: res.status,
   });
-}
+};
 
 const upstreamServerMap = {
   layout: 'https://contentlayout.rikstv.no/1',
   search: 'https://contentsearch.rikstv.no/1',
-  client: 'https://api.rikstv.no/client/2'
+  client: 'https://api.rikstv.no/client/2',
 } as const;
 const upstreamServerValues = Object.values(upstreamServerMap);
 
@@ -72,7 +84,11 @@ interface UpstreamSettings {
 const pathConfig = new Map<string, UpstreamSettings>([
   ['pages', { server: upstreamServerMap.layout }],
   ['menus', { server: upstreamServerMap.layout }],
-  ['assets', { server: upstreamServerMap.search, dataMapper: mapAsset, cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }) }],
+  ['assets', {
+    server: upstreamServerMap.search,
+    dataMapper: mapAsset,
+    cacheControl: cacheControl({ setPrivate: true, maxAgeMinutes: 5 }),
+  }],
   ['client', { server: upstreamServerMap.client }],
   ['ontvnow', { server: upstreamServerMap.client, dataMapper: mapAsset }],
 ]);

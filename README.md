@@ -1,6 +1,7 @@
 # a-rtv-proxy
 
-`a-rtv-proxy` is a [deno deploy](https://deno.com/deploy/docs) powered service for prototyping RTV's vNext client API
+`a-rtv-proxy` is a [deno deploy](https://deno.com/deploy/docs) powered service
+for prototyping RTV's vNext client API
 
 > Main goal: slimmed down interface to reduce client side logic and choices
 
@@ -12,21 +13,23 @@
 
 ## How-to `deno`
 
-> See [deno installation docs](https://deno.land/manual/getting_started/installation) first
+> See
+> [deno installation docs](https://deno.land/manual/getting_started/installation)
+> first
 
-Start local server
+Start local server (in watch mode)
 
 ```sh
-deno run -A index.ts
-# or
-deno run -A --watch index.ts
+npm start
 ```
 
 Run integration tests
 
 ```sh
-deno test -A
+npm test
 ```
+
+> _see actual deno commands in [package.json](./package.json)_
 
 ## Interface
 
@@ -44,11 +47,11 @@ interface MappedAsset {
   type: 'program' | 'series' | 'event' | 'channel'; // for choosing appropriate select action
   style: 'default' | 'featured' | 'live'; // so that we can style the card
   _links: {
-    details: { href: string; }
-    series?: { href: string; } // set for series
-    channel?: { href: string; } // set for event/live types
-  }
-  label?: string;  // Set for event types
+    details: { href: string };
+    series?: { href: string }; // set for series
+    channel?: { href: string }; // set for event/live types
+  };
+  label?: string; // Set for event types
   startTimeEpoch?: number; // Set for event/live types
   durationInSeconds?: number; // Set for event/live types
 }

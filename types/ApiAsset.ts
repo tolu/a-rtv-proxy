@@ -1,4 +1,4 @@
-export type ApiAsset = ApiProgramAsset | ApiEpisodeAsset; 
+export type ApiAsset = ApiProgramAsset | ApiEpisodeAsset;
 export interface ApiProgramAsset {
   id: string;
   name: string;
@@ -17,12 +17,12 @@ export interface ApiProgramAsset {
     _links: {
       epg: Link;
       placeholderImage: Link;
-    }
-  }
+    };
+  };
   _links: {
     details: Link;
     series?: Link;
-  }
+  };
 }
 export interface ApiEpisodeAsset extends ApiProgramAsset {
   seriesName: string;
