@@ -36,11 +36,12 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
 
   // pick allowed headers from response
   const responseHeaders: Record<string, string> = {};
-  for (let [key, value] of res.headers.entries()) {
+  res.headers.forEach((value, key) => {
     if (!['content-length', 'server', 'date'].includes(key)) {
       responseHeaders[key] = value;
     }
-  }
+  })
+  
   // add specific private cache per endpoint
   if (proxyConfig.cacheControl) {
     responseHeaders['cache-control'] = proxyConfig.cacheControl;
