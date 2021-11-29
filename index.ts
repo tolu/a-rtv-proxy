@@ -21,18 +21,24 @@ async function handler(_req: Request): Promise<Response> {
   }
 
   if (useHtmlMiddlewareHandler(_req.url)) {
-    return await htmlMiddlewareHandler(_req);
+    try {
+      return await htmlMiddlewareHandler(_req);
+    } catch (err) {
+      return createRes(err, 500);
+    }
   }
 
   // return 404 for unsupported path segments
-  return new Response(
-    JSON.stringify({ message: `found no handler for path: ${_req.url}` }),
-    {
-      headers: { 'content-type': 'application/json; charset=utf-8' },
-      status: 404,
-    },
-  );
+  return createRes({ message: `found no handler for path: ${_req.url}` }, 404);
 }
 
 console.log('Server started on http://localhost:8000/');
 await serve(handler);
+
+const createRes = (msg: any, status = 200) => {
+  const stringMessage = typeof msg === 'string';
+  return new Response(stringMessage ? msg : JSON.stringify(stringMessage), {
+    status,
+    headers: !stringMessage ? { 'content-type': 'application/json; charset=utf-8' } : {}
+  });
+}

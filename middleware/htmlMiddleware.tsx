@@ -11,9 +11,9 @@ export const useHtmlMiddlewareHandler = (url: string) => {
 };
 
 export const htmlMiddlewareHandler = async (_req: Request) => {
-  const url = _req.url.replace('/html', '');
+  const dataPath = _req.url.replace('/html', '');
 
-  const res = await mappingMiddlewareHandler({..._req, url});
+  const res = await mappingMiddlewareHandler({ headers: _req.headers, method: _req.method, url: dataPath });
   
   console.log('got response', {res});
 
@@ -22,7 +22,7 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   }
 
   let firstPathSegment =
-    (new URL(url)).pathname.split('/').filter(Boolean)[0];
+    (new URL(dataPath)).pathname.split('/').filter(Boolean)[0];
   const data = await res.json();
   if (firstPathSegment === 'pages' && !Array.isArray(data)) {
     firstPathSegment = 'page';
