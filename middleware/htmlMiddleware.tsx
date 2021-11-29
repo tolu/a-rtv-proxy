@@ -15,6 +15,7 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   console.log('useHtmlMiddlewareHandler', {dataPath});
 
   const res = await fetch(dataPath);
+  console.log('got response', {res});
 
   if (!res.ok) {
     return new Response(JSON.stringify(res), { status: 404 });
