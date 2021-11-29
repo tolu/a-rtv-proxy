@@ -1,4 +1,4 @@
-import { useMappingMiddlewareHandler } from './mappingMiddleware.ts';
+import { useMappingMiddlewareHandler, mappingMiddlewareHandler } from './mappingMiddleware.ts';
 import { appShell } from '../utils/html.ts';
 import { pageListRenderer } from '../components/PageList.tsx';
 import { pageRenderer } from '../components/Page.tsx';
@@ -11,10 +11,10 @@ export const useHtmlMiddlewareHandler = (url: string) => {
 };
 
 export const htmlMiddlewareHandler = async (_req: Request) => {
-  const dataPath = _req.url.replace('/html', '');
-  console.log('useHtmlMiddlewareHandler', {dataPath});
+  const url = _req.url.replace('/html', '');
 
-  const res = await fetch(dataPath);
+  const res = await mappingMiddlewareHandler({..._req, url});
+  
   console.log('got response', {res});
 
   if (!res.ok) {
@@ -22,7 +22,7 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   }
 
   let firstPathSegment =
-    (new URL(dataPath)).pathname.split('/').filter(Boolean)[0];
+    (new URL(url)).pathname.split('/').filter(Boolean)[0];
   const data = await res.json();
   if (firstPathSegment === 'pages' && !Array.isArray(data)) {
     firstPathSegment = 'page';
