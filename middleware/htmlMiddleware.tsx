@@ -14,10 +14,8 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   const dataPath = _req.url.replace('/html', '');
 
   const res = await mappingMiddlewareHandler({ headers: _req.headers, method: _req.method, url: dataPath });
-  
-  console.log('got response', {res});
 
-  if (!res.ok) {
+  if (res.ok !== true) {
     return new Response(JSON.stringify(res), { status: 404 });
   }
 
@@ -27,6 +25,8 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   if (firstPathSegment === 'pages' && !Array.isArray(data)) {
     firstPathSegment = 'page';
   }
+  
+  console.log('got data', {data});
 
   const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
 
