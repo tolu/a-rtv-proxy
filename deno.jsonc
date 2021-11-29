@@ -1,14 +1,4 @@
 {
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "dom.asynciterable",
-      "deno.ns",
-      "deno.unstable"
-    ],
-    "jsxFactory": "h"
-  },
   "fmt": {
     "options": {
       "useTabs": false,
