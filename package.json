@@ -1,0 +1,7 @@
+{
+  "name": "a-rtv-proxy",
+  "scripts": {
+    "dev": "deno run --watch -A --config tsconfig.json index.ts",
+    "test": "deno test -A"
+  }
+}

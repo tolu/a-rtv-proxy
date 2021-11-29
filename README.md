@@ -14,19 +14,19 @@
 
 > See [deno installation docs](https://deno.land/manual/getting_started/installation) first
 
-Start local server
+Start local server (in watch mode)
 
 ```sh
-deno run -A index.ts
-# or
-deno run -A --watch index.ts
+npm run dev
 ```
 
 Run integration tests
 
 ```sh
-deno test -A
+npm test
 ```
+
+> *see actual deno commands in [package.json](./package.json)*
 
 ## Interface
 
