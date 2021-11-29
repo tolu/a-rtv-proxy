@@ -1,3 +1,10 @@
+/* must be included in some file for tsx to work on deploy */
+/** @jsx h */
+/// <reference no-default-lib="true"/>
+/// <reference lib="dom" />
+/// <reference lib="dom.asynciterable" />
+/// <reference lib="deno.ns" />
+
 import { useMappingMiddlewareHandler, mappingMiddlewareHandler } from './mappingMiddleware.ts';
 import { appShell } from '../utils/html.ts';
 import { pageListRenderer } from '../components/PageList.tsx';
