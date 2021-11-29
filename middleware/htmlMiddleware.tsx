@@ -12,10 +12,12 @@ export const useHtmlMiddlewareHandler = (url: string) => {
 
 export const htmlMiddlewareHandler = async (_req: Request) => {
   const dataPath = _req.url.replace('/html', '');
+  console.log('useHtmlMiddlewareHandler', {dataPath});
+
   const res = await fetch(dataPath);
 
   if (!res.ok) {
-    return new Response('', { status: 404 });
+    return new Response(JSON.stringify(res), { status: 404 });
   }
 
   let firstPathSegment =
