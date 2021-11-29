@@ -8,11 +8,8 @@ import { h, renderSSR } from './deps.ts';
 function App() {
   return (
     <html>
-      <head>
-        <title>Hello from JSX 2</title>
-      </head>
       <body>
-        <h1>Hello world</h1>
+        <h1>Hello world 2!</h1>
       </body>
     </html>
   );
