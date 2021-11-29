@@ -1,3 +1,9 @@
+/* must be included in some file for tsx to work on deploy */
+/// <reference no-default-lib="true"/>
+/// <reference lib="dom" />
+/// <reference lib="dom.asynciterable" />
+/// <reference lib="deno.ns" />
+
 import { serve } from './deps.ts';
 import {
   mappingMiddlewareHandler,
