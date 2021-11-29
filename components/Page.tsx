@@ -1,8 +1,4 @@
 /** @jsx h */
-/// <reference no-default-lib="true"/>
-/// <reference lib="dom" />
-/// <reference lib="dom.asynciterable" />
-/// <reference lib="deno.ns" />
 
 import { h, renderSSR } from '../deps.ts';
 import { Page } from '../types/ApiPages.ts';
