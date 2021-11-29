@@ -15,7 +15,15 @@ export function ProgressBar({start, end}: Props) {
   const progress = Math.round((now - startTime) / (endTime - startTime) * 100);
   const style = `height: 5px; width: ${progress}%; background: rgba(255 255 0 / 75%);`;
   return (
-    <div style="border-radius: 50vw; overflow: hidden; background: rgba(100 100 100 / 50%); position: relative; bottom: 13px; width: 95%; margin: auto;">
+    <div style={{
+      borderRadius: '50vw',
+      overflow: 'hidden',
+      background: 'rgba(100 100 100 / 50%)',
+      position: 'relative',
+      bottom: '13px',
+      width: '95%',
+      margin: 'auto',
+      }}>
       <div style={style}></div>
     </div>
   );
