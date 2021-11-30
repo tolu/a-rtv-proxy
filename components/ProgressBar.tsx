@@ -6,12 +6,12 @@ interface Props {
   end: Date | null;
 }
 export function ProgressBar({ start, end }: Props) {
-  if (!start || !end) return '';
+  if (!start || !end) return null;
   const now = Date.now();
   const startTime = start.getTime();
   const endTime = end.getTime();
-  if (now > endTime) return '';
-  if (now < startTime) return '';
+  if (now > endTime) return null;
+  if (now < startTime) return null;
   const progress = Math.round(
     (now - startTime) / (endTime - startTime) * 100,
   );
