@@ -26,16 +26,11 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
     firstPathSegment = 'page';
   }
   
-  console.log('got data', {data});
-  
   try {
 
     const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
-    console.log(1);
     const markup = await renderer(data);
-    console.log(2);
     const html = appShell(markup);
-    console.log(3);
   
     return new Response(html, {
       headers: { 'content-type': 'text/html; charset=utf-8' },
