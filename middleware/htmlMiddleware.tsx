@@ -17,14 +17,15 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
 
   let firstPathSegment =
     (new URL(dataPath)).pathname.split('/').filter(Boolean)[0];
-  const data = await res.json();
-  if (firstPathSegment === 'pages' && !Array.isArray(data)) {
-    firstPathSegment = 'page';
-  }
 
+  const data = await res.json();
+  const isArray = Array.isArray(data);
   switch (firstPathSegment) {
-    case 'pages': return jsx(<PageList data={data} />)
-    case 'page': return jsx(await Page(data)); // must call as function since async
+    case 'pages': {
+      return isArray
+      ? jsx(<PageList data={data} />)
+      : jsx(await Page(data));
+    }
   }
   
   return json({ error: 'no renderer for path/data', data}, { status: 404 });
