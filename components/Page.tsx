@@ -22,12 +22,18 @@ export const pageRenderer = async ({ title, swimlanes }: Page) => {
     5,
   );
   console.log('render page', 2, {supportedLanes});
-  const assetLists = await Promise.all(
-    supportedLanes.map(async (list) => {
-      const items = await (await fetch(list.link)).json();
-      return { ...list, items };
-    }),
-  );
+
+  const assetLists: Array<Page['swimlanes'][0] & {items: any[]}> = [];
+  for (let lane of supportedLanes) {
+    try {
+      let res = await fetch(lane.link);
+      console.log(lane.link, {res});
+      let items = await res.json();
+      assetLists.push({ ...lane, items });
+    } catch (err) {
+      console.log('failed', {err});
+    }
+  }
   console.log('render page', 3);
 
   return renderSSR(<Page title={title} assetLists={assetLists} />);
