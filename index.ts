@@ -17,7 +17,7 @@ import {
 
 const createRes = (msg: any, status = 200) => {
   const stringMessage = typeof msg === 'string';
-  const body = stringMessage ? msg : JSON.stringify(stringMessage, null, 2);
+  const body = stringMessage ? msg : JSON.stringify(msg, null, 2);
   return new Response(
     body,
     {
