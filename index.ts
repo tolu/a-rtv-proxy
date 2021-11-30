@@ -15,6 +15,18 @@ import {
   useHtmlMiddlewareHandler,
 } from './middleware/htmlMiddleware.tsx';
 
+const createRes = (msg: any, status = 200) => {
+  const stringMessage = typeof msg === 'string';
+  const body = stringMessage ? msg : JSON.stringify(stringMessage, null, 2);
+  return new Response(
+    body,
+    {
+      status,
+      headers: !stringMessage ? { 'content-type': 'application/json; charset=utf-8' } : undefined,
+    }
+  );
+}
+
 async function handler(_req: Request): Promise<Response> {
   if (useMappingMiddlewareHandler(_req.url)) {
     return await mappingMiddlewareHandler(_req);
@@ -34,11 +46,3 @@ async function handler(_req: Request): Promise<Response> {
 
 console.log('Server started on http://localhost:8000/');
 await serve(handler);
-
-const createRes = (msg: any, status = 200) => {
-  const stringMessage = typeof msg === 'string';
-  return new Response(stringMessage ? msg : JSON.stringify(stringMessage), {
-    status,
-    headers: !stringMessage ? { 'content-type': 'application/json; charset=utf-8' } : {}
-  });
-}
