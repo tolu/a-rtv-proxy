@@ -3,7 +3,7 @@
 import { h, renderSSR } from '../deps.ts';
 import { Page } from '../types/ApiPages.ts';
 import { Swimlane } from './Swimlane.tsx';
-import { mappingMiddlewareHandler } from '../middleware/mappingMiddleware.ts';
+import { fetchViaMiddleware } from '../middleware/mappingMiddleware.ts';
 
 function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
   return (
@@ -17,21 +17,20 @@ function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
 }
 
 export const pageRenderer = async ({ title, swimlanes }: Page) => {
-  console.log('render page', 1);
   const supportedLanes = swimlanes.filter((s) => s.type !== 'Menu').slice(
     1,
     5,
   );
 
-  const assetLists: Array<Page['swimlanes'][0] & {items: any[]}> = [];
+  const assetLists: Array<Page['swimlanes'][0] & { items: any[] }> = [];
   for (let lane of supportedLanes) {
     try {
       // must go via mappingMiddleware since deno deploy does not allow requests to self
-      let res = await mappingMiddlewareHandler({ url: lane.link, headers: new Headers(), method: 'GET' });
+      let res = await fetchViaMiddleware(lane.link);
       let items = await res.json();
       assetLists.push({ ...lane, items });
     } catch (err) {
-      console.log('failed', {err});
+      console.log('swimlane fetch failed', { err });
     }
   }
 

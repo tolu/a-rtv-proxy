@@ -7,7 +7,17 @@ export const useMappingMiddlewareHandler = (url: string) => {
   return pathConfig.has(firstPathSegment);
 };
 
-export const mappingMiddlewareHandler = async (_req: Pick<Request, 'headers'|'url'|'method'>) => {
+export const fetchViaMiddleware = async (
+  url: string,
+  headers = new Headers(),
+  method = 'GET',
+) => {
+  return await mappingMiddlewareHandler({ url, headers, method });
+};
+
+export const mappingMiddlewareHandler = async (
+  _req: Pick<Request, 'headers' | 'url' | 'method'>,
+) => {
   // get upstream url base from first path segment
   const { headers, method, url } = _req;
   const { pathname, search, origin } = new URL(url);

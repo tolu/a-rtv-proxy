@@ -1,4 +1,7 @@
-import { useMappingMiddlewareHandler, mappingMiddlewareHandler } from './mappingMiddleware.ts';
+import {
+  fetchViaMiddleware,
+  useMappingMiddlewareHandler,
+} from './mappingMiddleware.ts';
 import { appShell } from '../utils/html.ts';
 import { pageListRenderer } from '../components/PageList.tsx';
 import { pageRenderer } from '../components/Page.tsx';
@@ -13,7 +16,7 @@ export const useHtmlMiddlewareHandler = (url: string) => {
 export const htmlMiddlewareHandler = async (_req: Request) => {
   const dataPath = _req.url.replace('/html', '');
 
-  const res = await mappingMiddlewareHandler({ headers: _req.headers, method: _req.method, url: dataPath });
+  const res = await fetchViaMiddleware(dataPath, _req.headers);
 
   if (res.ok !== true) {
     return new Response(JSON.stringify(res), { status: 404 });
@@ -25,20 +28,14 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   if (firstPathSegment === 'pages' && !Array.isArray(data)) {
     firstPathSegment = 'page';
   }
-  
-  try {
 
-    const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
-    const markup = await renderer(data);
-    const html = appShell(markup);
-  
-    return new Response(html, {
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-    });
+  const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
+  const markup = await renderer(data);
+  const html = appShell(markup);
 
-  } catch (err) {
-    return new Response(JSON.stringify({ msg: 'oopsie', err}, null, 2));
-  }
+  return new Response(html, {
+    headers: { 'content-type': 'text/html; charset=utf-8' },
+  });
 };
 
 const templateMap = new Map<string, (input: any) => string | Promise<string>>([

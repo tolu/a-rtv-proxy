@@ -22,26 +22,31 @@ const createRes = (msg: any, status = 200) => {
     body,
     {
       status,
-      headers: !stringMessage ? { 'content-type': 'application/json; charset=utf-8' } : undefined,
-    }
+      headers: !stringMessage
+        ? { 'content-type': 'application/json; charset=utf-8' }
+        : undefined,
+    },
   );
-}
+};
 
 async function handler(_req: Request): Promise<Response> {
-  if (useMappingMiddlewareHandler(_req.url)) {
-    return await mappingMiddlewareHandler(_req);
-  }
-
-  if (useHtmlMiddlewareHandler(_req.url)) {
-    try {
-      return await htmlMiddlewareHandler(_req);
-    } catch (err) {
-      return createRes({ message: 'html render crashed...', err}, 500);
+  try {
+    if (useMappingMiddlewareHandler(_req.url)) {
+      return await mappingMiddlewareHandler(_req);
     }
-  }
 
-  // return 404 for unsupported path segments
-  return createRes({ message: `found no handler for path: ${_req.url}` }, 404);
+    if (useHtmlMiddlewareHandler(_req.url)) {
+      return await htmlMiddlewareHandler(_req);
+    }
+
+    // return 404 for unsupported path segments
+    return createRes(
+      { message: `found no handler for path: ${_req.url}` },
+      404,
+    );
+  } catch (err) {
+    return createRes({ message: 'something crashed...', err }, 500);
+  }
 }
 
 console.log('Server started on http://localhost:8000/');
