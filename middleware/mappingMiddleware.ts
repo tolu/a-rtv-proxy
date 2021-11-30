@@ -7,9 +7,19 @@ export const useMappingMiddlewareHandler = (url: string) => {
   return pathConfig.has(firstPathSegment);
 };
 
-export const mappingMiddlewareHandler = async (_req: Request) => {
+export const fetchViaMiddleware = async (
+  url: string,
+  headers = new Headers(),
+  method = 'GET',
+) => {
+  return await mappingMiddlewareHandler({ url, headers, method });
+};
+
+export const mappingMiddlewareHandler = async (
+  _req: Pick<Request, 'headers' | 'url' | 'method'>,
+) => {
   // get upstream url base from first path segment
-  const { headers, method, url, body } = _req;
+  const { headers, method, url } = _req;
   const { pathname, search, origin } = new URL(url);
   const firstPathSegment = pathname.split('/').filter(Boolean)[0];
   const proxyConfig = pathConfig.get(firstPathSegment)!;
@@ -22,7 +32,6 @@ export const mappingMiddlewareHandler = async (_req: Request) => {
       'x-rikstv-application': 'Strim-Browser/4.0.991',
     },
     method,
-    body,
   });
   // early return if not a-ok
   if (

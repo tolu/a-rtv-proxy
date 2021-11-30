@@ -1,4 +1,5 @@
 /* must be included in some file for tsx to work on deploy */
+/** @jsx h */
 /// <reference no-default-lib="true"/>
 /// <reference lib="dom" />
 /// <reference lib="dom.asynciterable" />
@@ -14,23 +15,38 @@ import {
   useHtmlMiddlewareHandler,
 } from './middleware/htmlMiddleware.tsx';
 
-async function handler(_req: Request): Promise<Response> {
-  if (useMappingMiddlewareHandler(_req.url)) {
-    return await mappingMiddlewareHandler(_req);
-  }
-
-  if (useHtmlMiddlewareHandler(_req.url)) {
-    return await htmlMiddlewareHandler(_req);
-  }
-
-  // return 404 for unsupported path segments
+const createRes = (msg: any, status = 200) => {
+  const stringMessage = typeof msg === 'string';
+  const body = stringMessage ? msg : JSON.stringify(msg, null, 2);
   return new Response(
-    JSON.stringify({ message: `found no handler for path: ${_req.url}` }),
+    body,
     {
-      headers: { 'content-type': 'application/json; charset=utf-8' },
-      status: 404,
+      status,
+      headers: !stringMessage
+        ? { 'content-type': 'application/json; charset=utf-8' }
+        : undefined,
     },
   );
+};
+
+async function handler(_req: Request): Promise<Response> {
+  try {
+    if (useMappingMiddlewareHandler(_req.url)) {
+      return await mappingMiddlewareHandler(_req);
+    }
+
+    if (useHtmlMiddlewareHandler(_req.url)) {
+      return await htmlMiddlewareHandler(_req);
+    }
+
+    // return 404 for unsupported path segments
+    return createRes(
+      { message: `found no handler for path: ${_req.url}` },
+      404,
+    );
+  } catch (err) {
+    return createRes({ message: 'something crashed...', err }, 500);
+  }
 }
 
 console.log('Server started on http://localhost:8000/');

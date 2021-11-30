@@ -1,4 +1,7 @@
-import { useMappingMiddlewareHandler } from './mappingMiddleware.ts';
+import {
+  fetchViaMiddleware,
+  useMappingMiddlewareHandler,
+} from './mappingMiddleware.ts';
 import { appShell } from '../utils/html.ts';
 import { pageListRenderer } from '../components/PageList.tsx';
 import { pageRenderer } from '../components/Page.tsx';
@@ -12,10 +15,11 @@ export const useHtmlMiddlewareHandler = (url: string) => {
 
 export const htmlMiddlewareHandler = async (_req: Request) => {
   const dataPath = _req.url.replace('/html', '');
-  const res = await fetch(dataPath);
 
-  if (!res.ok) {
-    return new Response('', { status: 404 });
+  const res = await fetchViaMiddleware(dataPath, _req.headers);
+
+  if (res.ok !== true) {
+    return new Response(JSON.stringify(res), { status: 404 });
   }
 
   let firstPathSegment =
@@ -26,8 +30,9 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   }
 
   const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
+  const markup = await renderer(data);
+  const html = appShell(markup);
 
-  const html = appShell(await renderer(data));
   return new Response(html, {
     headers: { 'content-type': 'text/html; charset=utf-8' },
   });

@@ -3,6 +3,7 @@
 import { h, renderSSR } from '../deps.ts';
 import { Page } from '../types/ApiPages.ts';
 import { Swimlane } from './Swimlane.tsx';
+import { fetchViaMiddleware } from '../middleware/mappingMiddleware.ts';
 
 function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
   return (
@@ -20,12 +21,18 @@ export const pageRenderer = async ({ title, swimlanes }: Page) => {
     1,
     5,
   );
-  const assetLists = await Promise.all(
-    supportedLanes.map(async (list) => {
-      const items = await (await fetch(list.link)).json();
-      return { ...list, items };
-    }),
-  );
+
+  const assetLists: Array<Page['swimlanes'][0] & { items: any[] }> = [];
+  for (let lane of supportedLanes) {
+    try {
+      // must go via mappingMiddleware since deno deploy does not allow requests to self
+      let res = await fetchViaMiddleware(lane.link);
+      let items = await res.json();
+      assetLists.push({ ...lane, items });
+    } catch (err) {
+      console.log('swimlane fetch failed', { err });
+    }
+  }
 
   return renderSSR(<Page title={title} assetLists={assetLists} />);
 };
