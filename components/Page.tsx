@@ -3,6 +3,7 @@
 import { h, renderSSR } from '../deps.ts';
 import { Page } from '../types/ApiPages.ts';
 import { Swimlane } from './Swimlane.tsx';
+import { mappingMiddlewareHandler } from '../middleware/mappingMiddleware.ts';
 
 function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
   return (
@@ -21,20 +22,18 @@ export const pageRenderer = async ({ title, swimlanes }: Page) => {
     1,
     5,
   );
-  console.log('render page', 2, {supportedLanes});
 
   const assetLists: Array<Page['swimlanes'][0] & {items: any[]}> = [];
   for (let lane of supportedLanes) {
     try {
-      let res = await fetch(lane.link);
-      console.log(lane.link, {res});
+      // must go via mappingMiddleware since deno deploy does not allow requests to self
+      let res = await mappingMiddlewareHandler({ url: lane.link, headers: new Headers(), method: 'GET' });
       let items = await res.json();
       assetLists.push({ ...lane, items });
     } catch (err) {
       console.log('failed', {err});
     }
   }
-  console.log('render page', 3);
 
   return renderSSR(<Page title={title} assetLists={assetLists} />);
 };
