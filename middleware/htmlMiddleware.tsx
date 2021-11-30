@@ -27,13 +27,16 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   }
   
   console.log('got data', {data});
+  
   try {
+
     const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
     const html = appShell(await renderer(data));
   
     return new Response(html, {
       headers: { 'content-type': 'text/html; charset=utf-8' },
     });
+
   } catch (err) {
     return new Response(JSON.stringify(err, null, 2));
   }
