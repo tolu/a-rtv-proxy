@@ -31,14 +31,18 @@ export const htmlMiddlewareHandler = async (_req: Request) => {
   try {
 
     const renderer = templateMap.get(firstPathSegment) ?? defaultRenderer;
-    const html = appShell(await renderer(data));
+    console.log(1);
+    const markup = await renderer(data);
+    console.log(2);
+    const html = appShell(markup);
+    console.log(3);
   
     return new Response(html, {
       headers: { 'content-type': 'text/html; charset=utf-8' },
     });
 
   } catch (err) {
-    return new Response(JSON.stringify(err, null, 2));
+    return new Response(JSON.stringify({ msg: 'oopsie', err}, null, 2));
   }
 };
 

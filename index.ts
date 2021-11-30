@@ -36,7 +36,7 @@ async function handler(_req: Request): Promise<Response> {
     try {
       return await htmlMiddlewareHandler(_req);
     } catch (err) {
-      return createRes(err, 500);
+      return createRes({ message: 'html render crashed...', err}, 500);
     }
   }
 
