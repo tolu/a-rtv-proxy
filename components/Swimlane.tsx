@@ -24,7 +24,7 @@ function SwimlaneItem({ item }: { item: MappedAsset }) {
     ? new Date(item.startTimeEpoch + item.durationInSeconds * 1000)
     : null;
   return (
-    <div style='margin-right: 1rem; position: relative'>
+    <div style='margin-right: 1rem; position: relative' tabIndex={0}>
       <div style='position:relative' class='image-wrapper'>
         <AssetImg src={item.image[0].url} />
         <LogoImg src={item.providerLogoUrl} />

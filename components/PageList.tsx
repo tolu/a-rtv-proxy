@@ -1,9 +1,10 @@
 /** @jsx h */
 
-import { h, renderSSR } from '../deps.ts';
-import { PageList } from '../types/ApiPages.ts';
+import { h, jsx } from '../deps.ts';
+import { PageList as IPageList } from '../types/ApiPages.ts';
+import { Layout } from './Layout.tsx';
 
-function PageList({ pageList }: { pageList: PageList }) {
+function PageListTemplate({ pageList }: { pageList: IPageList }) {
   return (
     <main>
       <h1>Pages</h1>
@@ -21,5 +22,5 @@ function PageList({ pageList }: { pageList: PageList }) {
   );
 }
 
-export const pageListRenderer = (pageList: PageList) =>
-  renderSSR(<PageList pageList={pageList} />);
+export const PageList = ({data}: {data: IPageList}) =>
+  (<Layout><PageListTemplate pageList={data} /></Layout>);

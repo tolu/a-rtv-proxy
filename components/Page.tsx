@@ -1,11 +1,12 @@
 /** @jsx h */
 
-import { h, renderSSR } from '../deps.ts';
-import { Page } from '../types/ApiPages.ts';
+import { h } from '../deps.ts';
+import { Page as IPage } from '../types/ApiPages.ts';
+import { Layout } from './Layout.tsx';
 import { Swimlane } from './Swimlane.tsx';
 import { fetchViaMiddleware } from '../middleware/mappingMiddleware.ts';
 
-function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
+function PageTemplate({ title, assetLists }: { title: string; assetLists: any[] }) {
   return (
     <main>
       <h1>Page: {title}</h1>
@@ -16,13 +17,13 @@ function Page({ title, assetLists }: { title: string; assetLists: any[] }) {
   );
 }
 
-export const pageRenderer = async ({ title, swimlanes }: Page) => {
+export const Page = async ({ swimlanes, title }: IPage) => {
   const supportedLanes = swimlanes.filter((s) => s.type !== 'Menu').slice(
     1,
     5,
   );
 
-  const assetLists: Array<Page['swimlanes'][0] & { items: any[] }> = [];
+  const assetLists: Array<IPage['swimlanes'][0] & { items: any[] }> = [];
   for (let lane of supportedLanes) {
     try {
       // must go via mappingMiddleware since deno deploy does not allow requests to self
@@ -34,5 +35,5 @@ export const pageRenderer = async ({ title, swimlanes }: Page) => {
     }
   }
 
-  return renderSSR(<Page title={title} assetLists={assetLists} />);
+  return (<Layout><PageTemplate title={title} assetLists={assetLists} /></Layout>);
 };
